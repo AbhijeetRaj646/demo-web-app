@@ -51,6 +51,9 @@ jobs:
             echo "[DEBUG] Current directory: \$(pwd)"
             echo "[DEBUG] Docker version:"
             docker --version
+
+            echo "[INFO] Logging in to GitHub Container Registry (GHCR)..."
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
       
             set -e
             echo "[INFO] Pulling Docker  image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
