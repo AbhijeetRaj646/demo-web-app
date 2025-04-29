@@ -29,13 +29,13 @@ jobs:
       - name: Build and Tag Docker Image
         working-directory: my-yii2-app
         run: |
-          docker build -t ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA .
-          docker tag ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA ghcr.io/abhijeetraj646/my-app:latest
+          docker build -t ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA .
+          docker tag ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA ghcr.io/abhijeetraj646/my-app:latest
 
       - name: Push Docker Images
         run: |
-          docker push ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
-          docker push ghcr.io/abhijeetraj646/my-app:latest
+          docker push ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA
+          docker push ghcr.io/abhijeetraj646/demo-web-app/my-app:latest
 
       - name: Setup SSH Key
         uses: webfactory/ssh-agent@v0.5.3
@@ -69,8 +69,8 @@ jobs:
             echo "[DEBUG] GITHUB_SHA: \$GITHUB_SHA"  
       
             set -e
-            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/my-app:\$GITHUB_SHA"
-            docker pull ghcr.io/abhijeetraj646/my-app:\$GITHUB_SHA
+            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA"
+            docker pull ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA
             if [ $? -eq 0 ]; then
               echo "[SUCCESS] Docker image pulled successfully."
             else
@@ -79,7 +79,7 @@ jobs:
             fi
       
             echo "[INFO] Attempting to update Docker service 'app_myapp'..."
-            if docker service update --image ghcr.io/abhijeetraj646/my-app:\$GITHUB_SHA app_myapp; then
+            if docker service update --image ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA app_myapp; then
               echo "[SUCCESS] Service updated successfully. ✅"
             else
               echo "[ERROR] Update failed, rolling back..."
