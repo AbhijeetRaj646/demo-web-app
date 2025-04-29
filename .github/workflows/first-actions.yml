@@ -30,12 +30,12 @@ jobs:
         working-directory: my-yii2-app
         run: |
           docker build -t ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA .
-          docker tag ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA ghcr.io/AbhijeetRaj646/my-app:latest
+          docker tag ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA ghcr.io/AbhijeetRaj646/my-app:latest
 
       - name: Push Docker Images
         run: |
-          docker push ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA
-          docker push ghcr.io/AbhijeetRaj646/my-app:latest
+          docker push ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
+          docker push ghcr.io/abhijeetraj646/my-app:latest
 
       - name: Setup SSH Key
         uses: webfactory/ssh-agent@v0.5.3
