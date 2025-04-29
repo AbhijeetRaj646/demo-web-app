@@ -30,7 +30,7 @@ jobs:
         working-directory: my-yii2-app
         run: |
           docker build -t ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA .
-          docker tag ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA ghcr.io/abhijeetraj646/my-app:latest
+          docker tag ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA ghcr.io/abhijeetraj646/demo-web-app/my-app:latest
 
       - name: Push Docker Images
         run: |
