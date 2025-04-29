@@ -29,7 +29,7 @@ jobs:
       - name: Build and Tag Docker Image
         working-directory: my-yii2-app
         run: |
-          docker build -t ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA .
+          docker build -t ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA .
           docker tag ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA ghcr.io/AbhijeetRaj646/my-app:latest
 
       - name: Push Docker Images
