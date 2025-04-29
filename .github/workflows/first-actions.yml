@@ -44,13 +44,23 @@ jobs:
 
       - name: SSH into EC2 and Update Service with Rollback
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.PUBLICIP }} bash -s << 'EOF'
+          echo "Starting deployment over SSH to EC2..."
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} bash -s << EOF
+            echo "[DEBUG] SSH connection established successfully ✅"
+            echo "[DEBUG] Hostname: \$(hostname)"
+            echo "[DEBUG] Current directory: \$(pwd)"
+            echo "[DEBUG] Docker version:"
+            docker --version
+      
             set -e
+            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
             docker pull ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
+      
+            echo "[INFO] Attempting to update Docker service 'app_myapp'..."
             if docker service update --image ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA app_myapp; then
-              echo "Service updated successfully."
+              echo "[SUCCESS] Service updated successfully. ✅"
             else
-              echo "Update failed, rolling back..."
-              docker service update --rollback my-app-service
+              echo "[ERROR] Update failed, rolling back..."
+              docker service update --rollback app_myapp
             fi
           EOF
