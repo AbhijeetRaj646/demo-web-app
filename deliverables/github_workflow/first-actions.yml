@@ -1,0 +1,72 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # ✅ Secure login using GHCR GitHub Secret
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.GHCR }} | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
+
+      - name: Show Directory Structure of `my-yii2-app`
+        working-directory: my-yii2-app  # Set working directory here
+        run: |
+          echo "Listing the  directory   structure of my-yii2-app:"
+          ls -R # This lists the directory structure of my-yii2-app recursively
+
+      - name: Build and Tag Docker Image
+        working-directory: my-yii2-app
+        run: |
+          docker build -t ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA .
+          docker tag ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA ghcr.io/abhijeetraj646/demo-web-app/my-app:latest
+
+      - name: Push Docker Images
+        run: |
+          docker push ghcr.io/abhijeetraj646/demo-web-app/my-app:$GITHUB_SHA
+          docker push ghcr.io/abhijeetraj646/demo-web-app/my-app:latest
+
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: SSH into EC2 and Deploy
+        run: |
+          echo "Starting deployment over SSH to EC2..."
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.PUBLICIP }}  << 'EOF'
+      
+            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/demo-web-app/my-app:latest"
+            docker pull ghcr.io/abhijeetraj646/demo-web-app/my-app:latest
+            # if [ \$? -eq 0 ]; then
+            #   echo "[SUCCESS] Docker image pulled successfully."
+            # else
+            #   echo "[ERROR] Failed to pull Docker image."
+            #   exit 1
+            # fi
+      
+            echo "[INFO] Attempting to update Docker service 'app_myapp'..."
+            if docker service update --image ghcr.io/abhijeetraj646/demo-web-app/my-app:latest app_myapp; then
+              echo "[SUCCESS] Service updated successfully. ✅"
+            else
+              echo "[ERROR] Update failed, rolling back..."
+              docker service update --rollback app_myapp
+              if [ \$? -eq 0 ]; then
+                echo "[SUCCESS] Rollback completed successfully. ✅"
+              else
+                echo "[ERROR] Failed to rollback Docker service."
+                exit 1
+              fi
+            fi
+          EOF
