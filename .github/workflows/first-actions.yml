@@ -57,13 +57,13 @@ jobs:
       
             echo "[INFO] Logging in to GitHub Container Registry (GHCR)..."
             echo "[DEBUG] Using GHCR_TOKEN to login."
-            echo "\$GHCR_TOKEN" | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
-            if [ $? -eq 0 ]; then
-              echo "[SUCCESS] Logged in to GHCR successfully."
-            else
-              echo "[ERROR] Failed to log in to GHCR."
-              exit 1
-            fi
+            # echo "\$GHCR_TOKEN" | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
+            # if [ $? -eq 0 ]; then
+            #   echo "[SUCCESS] Logged in to GHCR successfully."
+            # else
+            #   echo "[ERROR] Failed to log in to GHCR."
+            #   exit 1
+            # fi
       
             # Debugging the GITHUB_SHA value passed from GitHub Actions
             echo "[DEBUG] GITHUB_SHA: \$GITHUB_SHA"  
