@@ -47,7 +47,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.PUBLICIP }} bash -s << 'EOF'
             set -e
             docker pull ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
-            if docker service update --image ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA my-app-service; then
+            if docker service update --image ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA app_myapp; then
               echo "Service updated successfully."
             else
               echo "Update failed, rolling back..."
