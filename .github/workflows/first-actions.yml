@@ -1,28 +1,50 @@
-name: My First GitHub Actions
+name: CI/CD Pipeline
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9]
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-    - name: Run tests
-      run: |
-        cd src
-        python -m pytest addition.py
+      # ✅ Secure login using GHCR GitHub Secret
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.GHCR }} | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
+
+      - name: Build and Tag Docker Image
+        working-directory: demo-web-app/my-yii2-app
+        run: |
+          docker build -t ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA .
+          docker tag ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA ghcr.io/AbhijeetRaj646/my-app:latest
+
+      - name: Push Docker Images
+        run: |
+          docker push ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA
+          docker push ghcr.io/AbhijeetRaj646/my-app:latest
+
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: SSH into EC2 and Update Service with Rollback
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} bash -s << 'EOF'
+            set -e
+            docker pull ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA
+            if docker service update --image ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA my-app-service; then
+              echo "Service updated successfully."
+            else
+              echo "Update failed, rolling back..."
+              docker service update --rollback my-app-service
+            fi
+          EOF
