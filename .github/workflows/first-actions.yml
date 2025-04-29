@@ -53,7 +53,7 @@ jobs:
             docker --version
       
             set -e
-            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
+            echo "[INFO] Pulling Docker  image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
             docker pull ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
       
             echo "[INFO] Attempting to update Docker service 'app_myapp'..."
