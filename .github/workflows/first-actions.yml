@@ -70,7 +70,7 @@ jobs:
             echo "[DEBUG] GITHUB_SHA: \$GITHUB_SHA"
       
             echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA"
-            docker pull ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA
+            docker pull ghcr.io/abhijeetraj646/demo-web-app/my-app:latest
             # if [ \$? -eq 0 ]; then
             #   echo "[SUCCESS] Docker image pulled successfully."
             # else
@@ -79,7 +79,7 @@ jobs:
             # fi
       
             echo "[INFO] Attempting to update Docker service 'app_myapp'..."
-            if docker service update --image ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA app_myapp; then
+            if docker service update --image ghcr.io/abhijeetraj646/demo-web-app/my-app:latest app_myapp; then
               echo "[SUCCESS] Service updated successfully. ✅"
             else
               echo "[ERROR] Update failed, rolling back..."
