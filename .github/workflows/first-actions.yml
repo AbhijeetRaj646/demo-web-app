@@ -13,11 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Show Directory Structure
-        run: |
-          echo "Listing the directory structure:"
-          ls # This will list the directory structure recursively
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -25,8 +20,14 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GHCR }} | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
 
+      - name: Show Directory Structure
+        run: |
+          echo "Listing the directory structure:"
+          ls 
+          cd my-yii2-app
+          ls# This will list the directory structure recursively
+
       - name: Build and Tag Docker Image
-        working-directory: demo-web-app/my-yii2-app
         run: |
           docker build -t ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA .
           docker tag ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA ghcr.io/AbhijeetRaj646/my-app:latest
