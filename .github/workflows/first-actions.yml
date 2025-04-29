@@ -22,10 +22,11 @@ jobs:
 
       - name: Show Directory Structure
         run: |
-          echo "Listing the directory structure:"
-          ls 
-          cd my-yii2-app
-          ls# This will list the directory structure recursively
+          echo "Listing the directory structure of the root folder:"
+          ls # This lists the root directory structure
+          echo "Navigating to my-yii2-app and listing its structure:"
+          cd demo-web-app/my-yii2-app
+          ls -R # This lists the directory structure of my-yii2-app recursively
 
       - name: Build and Tag Docker Image
         run: |
