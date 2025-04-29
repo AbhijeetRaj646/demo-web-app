@@ -30,7 +30,7 @@ jobs:
         working-directory: my-yii2-app
         run: |
           docker build -t ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA .
-          docker tag ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA ghcr.io/AbhijeetRaj646/my-app:latest
+          docker tag ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA ghcr.io/abhijeetraj646/my-app:latest
 
       - name: Push Docker Images
         run: |
@@ -46,8 +46,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} bash -s << 'EOF'
             set -e
-            docker pull ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA
-            if docker service update --image ghcr.io/AbhijeetRaj646/my-app:$GITHUB_SHA my-app-service; then
+            docker pull ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
+            if docker service update --image ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA my-app-service; then
               echo "Service updated successfully."
             else
               echo "Update failed, rolling back..."
