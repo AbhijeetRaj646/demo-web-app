@@ -45,6 +45,7 @@ jobs:
       - name: SSH into EC2 and Deploy
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}  # Pass the GITHUB_SHA from GitHub Actions
         run: |
           echo "Starting deployment over SSH to EC2..."
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.PUBLICIP }} bash -s << 'EOF'
@@ -57,12 +58,14 @@ jobs:
             echo "[INFO] Logging in to GitHub Container Registry (GHCR)..."
             echo "\$GHCR_TOKEN" | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
             
+            echo "[DEBUG] GITHUB_SHA: \$GITHUB_SHA"  # Debugging the GITHUB_SHA value
+            
             set -e
-            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
-            docker pull ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
+            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/my-app:\$GITHUB_SHA"
+            docker pull ghcr.io/abhijeetraj646/my-app:\$GITHUB_SHA
       
             echo "[INFO] Attempting to update Docker service 'app_myapp'..."
-            if docker service update --image ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA app_myapp; then
+            if docker service update --image ghcr.io/abhijeetraj646/my-app:\$GITHUB_SHA app_myapp; then
               echo "[SUCCESS] Service updated successfully. ✅"
             else
               echo "[ERROR] Update failed, rolling back..."
