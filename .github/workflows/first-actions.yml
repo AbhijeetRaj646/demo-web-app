@@ -78,7 +78,7 @@ jobs:
               exit 1
             fi
       
-            echo "[INFO] Attempting to update Docker service 'app_myapp'..."
+            echo "[INFO] Attempting to update Docker service  'app_myapp'..."
             if docker service update --image ghcr.io/abhijeetraj646/demo-web-app/my-app:\$GITHUB_SHA app_myapp; then
               echo "[SUCCESS] Service updated successfully. ✅"
             else
