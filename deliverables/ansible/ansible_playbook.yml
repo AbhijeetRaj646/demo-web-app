@@ -1,0 +1,110 @@
+---
+- name: Setup Docker Swarm and Deploy Yii2 App
+  hosts: all
+  become: yes
+  tasks:
+  
+    # Install Docker
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    # Install Docker Compose
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x'
+
+    # Install NGINX
+    - name: Install NGINX
+      apt:
+        name: nginx
+        state: present
+
+    # Install Git
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+
+    - name: Install PHP 8.3 FPM
+      apt:
+        name: php8.3-fpm
+        state: present
+        update_cache: yes
+
+
+    # Initialize Docker Swarm if not already initialized
+    - name: Initialize Docker Swarm
+      command: docker swarm init
+      when: ansible_facts['docker_swarm']['local_node'] is not defined
+
+    # Configure NGINX for reverse proxy
+    - name: Configure NGINX for reverse proxy to Yii2 app
+      copy:
+        dest: sudo nano /etc/nginx/sites-available/default
+        content: |
+          server {
+          listen 80;
+          server_name localhost;
+
+          root /var/www/html/web;
+          index index.php index.html index.htm;
+
+          location / {
+              try_files $uri $uri/ /index.php?$args;
+          }
+
+          location ~ \.php$ {
+              include snippets/fastcgi-php.conf;
+              fastcgi_pass 127.0.0.1:9000;   # connect to host PHP-FPM
+              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              include fastcgi_params;
+            }
+          }
+      notify: Restart NGINX
+
+    # Enable the NGINX site configuration
+    - name: Enable the NGINX site configuration
+      command: nginx -t && ln -s /etc/nginx/sites-available/yii2_app /etc/nginx/sites-enabled/
+      notify: Restart NGINX
+
+    # Clone the Yii2 app repository
+    - name: Clone Yii2 app repository
+      git:
+        repo: 'https://github.com/yourusername/your-yii2-repo.git'
+        dest: /var/www/yii2-app
+        version: main
+
+    # Create Docker Compose file for Yii2 App
+    - name: Create Docker Compose file for Yii2 App
+      copy:
+        dest: /var/www/yii2-app/docker-compose.yml
+        content: |
+          version: '3'
+          services:
+            yii2-app:
+              image: your_yii2_app_image
+              build:
+                context: /var/www/yii2-app
+              ports:
+                - "8080:80"
+              networks:
+                - app_network
+          networks:
+            app_network:
+              driver: bridge
+
+    # Deploy the Yii2 app as a Swarm service
+    - name: Deploy the Yii2 app as a Swarm service
+      command: docker stack deploy -c /var/www/yii2-app/docker-compose.yml yii2_stack
+      when: ansible_facts['docker_swarm']['local_node'] is defined
+
+  handlers:
+    - name: Restart NGINX
+      service:
+        name: nginx
+        state: restarted
