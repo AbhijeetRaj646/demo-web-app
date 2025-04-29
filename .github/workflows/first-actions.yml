@@ -42,21 +42,23 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: SSH into EC2 and Update Service with Rollback
+      - name: SSH into EC2 and Deploy
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
           echo "Starting deployment over SSH to EC2..."
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.PUBLICIP }} bash -s << EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.PUBLICIP }} bash -s << 'EOF'
             echo "[DEBUG] SSH connection established successfully ✅"
             echo "[DEBUG] Hostname: \$(hostname)"
             echo "[DEBUG] Current directory: \$(pwd)"
             echo "[DEBUG] Docker version:"
             docker --version
-
-            echo "[INFO] Logging in to GitHub Container Registry (GHCR)..."
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
       
+            echo "[INFO] Logging in to GitHub Container Registry (GHCR)..."
+            echo "\$GHCR_TOKEN" | docker login ghcr.io -u AbhijeetRaj646 --password-stdin
+            
             set -e
-            echo "[INFO] Pulling Docker  image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
+            echo "[INFO] Pulling Docker image: ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA"
             docker pull ghcr.io/abhijeetraj646/my-app:$GITHUB_SHA
       
             echo "[INFO] Attempting to update Docker service 'app_myapp'..."
