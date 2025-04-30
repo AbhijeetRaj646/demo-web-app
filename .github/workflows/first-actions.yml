@@ -23,7 +23,7 @@ jobs:
       - name: Show Directory Structure of `my-yii2-app`
         working-directory: my-yii2-app  # Set working directory here
         run: |
-          echo "Listing  the  directory  structure of my-yii2-app:"
+          echo "Listing   the  directory  structure of my-yii2-app:"
           ls -R # This lists the directory structure of my-yii2-app recursively
 
       - name: Build and Tag Docker Image
